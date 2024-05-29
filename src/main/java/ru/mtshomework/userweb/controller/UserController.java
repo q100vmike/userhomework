@@ -17,6 +17,7 @@ import ru.mtshomework.userweb.exception.UserNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @RestController
 public class UserController {
 
@@ -59,7 +60,6 @@ public class UserController {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFoundExceptions(UserNotFoundException ex) {
-        System.out.println("UserNotFoundException: " + ex.getMessage());
         return new ResponseEntity<Object>(
                 "Access denied message here", new HttpHeaders(), HttpStatus.FORBIDDEN);
     }
