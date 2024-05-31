@@ -89,7 +89,7 @@ public class UserController {
                 "Id не может быть 000!", new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-    @ResponseStatus(code = HttpStatus.FORBIDDEN, reason = "CustomException CustomException!")
+    @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "CustomException CustomException!")
     @ExceptionHandler(value = CustomException.class)
     public void handleCustomException(CustomException ex) {
             //nothing
