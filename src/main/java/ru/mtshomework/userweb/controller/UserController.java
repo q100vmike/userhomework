@@ -1,17 +1,21 @@
 package ru.mtshomework.userweb.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.extern.log4j.Log4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.mtshomework.userweb.entity.User;
 import ru.mtshomework.userweb.exception.CustomException;
 import ru.mtshomework.userweb.exception.UserNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,6 +54,11 @@ public class UserController {
         return "Id= " + id;
     }
 
+    @GetMapping("/date/{date}")
+    public String dateCheck(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime date) {
+        return "date= " + date;
+    }
+
     @GetMapping("/header")
     public ResponseEntity<String> header(@RequestHeader HttpHeaders headers) {
         log.info("************Headers:******************");
@@ -80,14 +89,15 @@ public class UserController {
                 "Id не может быть 000!", new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-/*    @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "CustomException CustomException!")
+    @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "CustomException CustomException!")
     @ExceptionHandler(value = CustomException.class)
     public void handleCustomException(CustomException ex) {
             //nothing
-    }*/
+    }
 
     @ExceptionHandler(value = IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.info("===ExceptionHandler = handleIllegalArgumentException");
         return new ResponseEntity<String>(
                 "IllegalArgumentException!", new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
