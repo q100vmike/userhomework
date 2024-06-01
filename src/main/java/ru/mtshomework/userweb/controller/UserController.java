@@ -66,9 +66,10 @@ public class UserController {
         return new ResponseEntity<String>(String.format("User-Agent = %s", url), HttpStatus.OK);
     }
 
+
     @GetMapping("/customex")
     public String customex(@RequestHeader HttpHeaders headers) {
-        throw new CustomException("CustomException 404");
+        throw new CustomException();
        // return "";
     }
 
