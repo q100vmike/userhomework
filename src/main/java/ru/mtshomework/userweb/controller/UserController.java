@@ -1,22 +1,25 @@
 package ru.mtshomework.userweb.controller;
 
-import ch.qos.logback.core.util.StringUtil;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+import lombok.extern.log4j.Log4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import ru.mtshomework.userweb.entity.User;
+import ru.mtshomework.userweb.exception.CustomException;
 import ru.mtshomework.userweb.exception.UserNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Log4j
 @RestController
 public class UserController {
 
@@ -31,20 +34,45 @@ public class UserController {
     }
 
     @GetMapping("/concat/{id}")
-    public String concatParam(@PathVariable String id, @RequestParam String name) {
+    public String concatParam(@PathVariable String id, @RequestParam(defaultValue ="Guest", required=false) String name) {
         return "Id= " + id + " name=" + name;
     }
 
     @GetMapping("/usernof/{id}")
     public String userNof(@PathVariable String id) throws UserNotFoundException {
-        throw new UserNotFoundException();
-/*        if (StringUtil.isNullOrEmpty(id)){
+        if ("000".equals(id)){
             throw new UserNotFoundException();
         }
-        return "Id= " + id;*/
+        return "Id= " + id;
     }
 
-/*
+    @GetMapping("/argument/{id}")
+    public String argument(@PathVariable String id) throws IllegalArgumentException {
+        if ("111".equals(id)){
+            throw new IllegalArgumentException();
+        }
+        return "Id= " + id;
+    }
+
+    @GetMapping("/date/{date}")
+    public String dateCheck(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDateTime date) {
+        return "date= " + date;
+    }
+
+    @GetMapping("/header")
+    public ResponseEntity<String> header(@RequestHeader HttpHeaders headers) {
+        log.info("************Headers:******************");
+        String url = headers.get("User-Agent").get(0);
+        return new ResponseEntity<String>(String.format("User-Agent = %s", url), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/customex")
+    public String customex(@RequestHeader HttpHeaders headers) {
+        throw new CustomException();
+       // return "";
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -55,12 +83,23 @@ public class UserController {
         });
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
-*/
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(value = UserNotFoundException.class)
     public ResponseEntity<Object> handleUserNotFoundExceptions(UserNotFoundException ex) {
-        System.out.println("UserNotFoundException: " + ex.getMessage());
         return new ResponseEntity<Object>(
-                "Access denied message here", new HttpHeaders(), HttpStatus.FORBIDDEN);
+                "Id не может быть 000!", new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(code = HttpStatus.NOT_FOUND, reason = "CustomException CustomException!")
+    @ExceptionHandler(value = CustomException.class)
+    public void handleCustomException(CustomException ex) {
+            //nothing
+    }
+
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        log.info("===ExceptionHandler = handleIllegalArgumentException");
+        return new ResponseEntity<String>(
+                "IllegalArgumentException!", new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 }
